@@ -3,6 +3,7 @@ package com.hussain.kafka.connect.manager.runner;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hussain.kafka.connect.manager.dto.ConnectorRequest;
 import com.hussain.kafka.connect.manager.service.ConnectorService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.io.Resource;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 
+@Slf4j
 @Component
 public class ConnectorWarmupRunner implements ApplicationRunner {
 
@@ -28,7 +30,7 @@ public class ConnectorWarmupRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
-        System.out.println("\n========== CONNECTOR WARMUP STARTED ==========\n");
+        log.info("\n========== CONNECTOR WARMUP STARTED ==========\n");
 
         PathMatchingResourcePatternResolver resolver =
                 new PathMatchingResourcePatternResolver();
@@ -68,13 +70,11 @@ public class ConnectorWarmupRunner implements ApplicationRunner {
                 // STEP 3: create connector
                 connectorService.createConnector(request);
 
-                System.out.println(
-                        "CREATED: " + connectorName
-                );
+                log.info("CREATED: {}", connectorName);
 
             } catch (Exception e) {
 
-                System.out.println(
+                log.info(
                         "FAILED: " + connectorName
                 );
 
@@ -82,6 +82,6 @@ public class ConnectorWarmupRunner implements ApplicationRunner {
             }
         }
 
-        System.out.println("\n========== CONNECTOR WARMUP COMPLETED ==========\n");
+       log.info("\n\n========== CONNECTOR WARMUP COMPLETED ==========\n");
     }
 }
