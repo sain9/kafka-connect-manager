@@ -1,0 +1,121 @@
+services:
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+    ports:
+      - "2181:2181"
+
+    networks:
+      - shared-network
+
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+
+    depends_on:
+      - zookeeper
+
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
+
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+    networks:
+      - shared-network
+
+
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect:7.5.0
+    container_name: kafka-connect
+
+    depends_on:
+      - kafka
+
+    ports:
+      - "8083:8083"
+
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka:29092
+
+      CONNECT_REST_PORT: 8083
+      CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
+
+      CONNECT_GROUP_ID: connect-cluster
+
+      CONNECT_CONFIG_STORAGE_TOPIC: connect-configs
+      CONNECT_OFFSET_STORAGE_TOPIC: connect-offsets
+      CONNECT_STATUS_STORAGE_TOPIC: connect-status
+
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+
+      CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components
+
+    volumes:
+      - ./data/input:/tmp/input
+      - ./data/error:/tmp/error
+      - ./data/finished:/tmp/finished
+
+    command:
+      - bash
+      - -c
+      - |
+        confluent-hub install --no-prompt jcustenborder/kafka-connect-spooldir:latest
+        /etc/confluent/docker/run
+
+    networks:
+      - shared-network
+
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+
+    depends_on:
+      - kafka
+      - kafka-connect
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: connect
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect:8083
+
+    networks:
+      - shared-network
+
+
+networks:
+  shared-network:
+    external: true
+    name: data-platform-network

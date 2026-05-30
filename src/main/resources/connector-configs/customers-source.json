@@ -1,0 +1,22 @@
+{
+  "name": "customers-source",
+  "config": {
+    "connector.class": "com.github.jcustenborder.kafka.connect.spooldir.SpoolDirCsvSourceConnector",
+    "tasks.max": "1",
+
+    "topic": "customers-topic",
+
+    "input.path": "/tmp/input",
+    "finished.path": "/tmp/finished",
+    "error.path": "/tmp/error",
+
+    "input.file.pattern": "customers\\.csv",
+
+    "csv.first.row.as.header": "true",
+    "schema.generation.enabled": "false",
+
+    "key.schema": "{\"name\":\"CustomerKey\",\"type\":\"STRUCT\",\"isOptional\":false,\"fieldSchemas\":{\"customer_id\":{\"type\":\"INT64\",\"isOptional\":false}}}",
+
+    "value.schema": "{\"name\":\"Customer\",\"type\":\"STRUCT\",\"isOptional\":false,\"fieldSchemas\":{\"customer_id\":{\"type\":\"INT64\",\"isOptional\":false},\"customer_name\":{\"type\":\"STRING\",\"isOptional\":false},\"email\":{\"type\":\"STRING\",\"isOptional\":false},\"city\":{\"type\":\"STRING\",\"isOptional\":false}}}"
+  }
+}
