@@ -10,7 +10,7 @@
     "finished.path": "/tmp/finished",
     "error.path": "/tmp/error",
 
-    "input.file.pattern": "customers\\.csv",
+    "input.file.pattern": "customers.*\\.csv",
 
     "csv.first.row.as.header": "true",
     "schema.generation.enabled": "false",
