@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
-@Component
+//@Component
 public class OrderDeduplicationProcessor {
 
     @Value("${kafka.streams.topics.orders.source:orders-topic}")

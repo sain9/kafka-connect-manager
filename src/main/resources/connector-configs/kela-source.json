@@ -1,0 +1,16 @@
+{
+  "name" : "kela-source",
+  "config" : {
+    "connector.class" : "com.github.jcustenborder.kafka.connect.spooldir.SpoolDirCsvSourceConnector",
+    "tasks.max" : "1",
+    "topic" : "kela-topic",
+    "input.path" : "/tmp/input",
+    "finished.path" : "/tmp/finished",
+    "error.path" : "/tmp/error",
+    "input.file.pattern" : "kela.*\\.csv",
+    "csv.first.row.as.header" : "true",
+    "schema.generation.enabled" : "false",
+    "key.schema" : "{\"name\":\"Kela\",\"type\":\"STRUCT\",\"isOptional\":true,\"fieldSchemas\":{}}",
+    "value.schema" : "{\"name\":\"Kela\",\"type\":\"STRUCT\",\"isOptional\":false,\"fieldSchemas\":{\"order_id\":{\"type\":\"INT32\",\"isOptional\":true},\"customer_name\":{\"type\":\"STRING\",\"isOptional\":true},\"amount\":{\"type\":\"INT32\",\"isOptional\":true}}}"
+  }
+}

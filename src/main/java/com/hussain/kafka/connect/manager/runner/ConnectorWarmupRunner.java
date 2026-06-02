@@ -11,6 +11,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -38,6 +39,16 @@ public class ConnectorWarmupRunner implements ApplicationRunner {
         Resource[] resources =
                 resolver.getResources("classpath:connector-configs/*.json");
 
+        // Get all existing connectors once to avoid multiple API calls
+        List<String> existingConnectors = null;
+        try {
+            existingConnectors = connectorService.getAllConnectors();
+            log.info("Found {} existing connectors in Kafka Connect",
+                    existingConnectors != null ? existingConnectors.size() : 0);
+        } catch (Exception e) {
+            log.warn("Could not fetch existing connectors: {}", e.getMessage());
+        }
+
         for (Resource resource : resources) {
 
             String fileName = resource.getFilename();
@@ -49,12 +60,9 @@ public class ConnectorWarmupRunner implements ApplicationRunner {
 
             try {
 
-                // STEP 1: check if connector exists
-                if (connectorService.connectorExists(connectorName)) {
-
-                    System.out.println(
-                            "SKIPPED (already exists): " + connectorName
-                    );
+                // STEP 1: check if connector exists using cached list
+                if (existingConnectors != null && existingConnectors.contains(connectorName)) {
+                    log.info("SKIPPED (already exists in Kafka Connect): {}", connectorName);
                     continue;
                 }
 
@@ -74,14 +82,17 @@ public class ConnectorWarmupRunner implements ApplicationRunner {
 
             } catch (Exception e) {
 
-                log.info(
-                        "FAILED: " + connectorName
-                );
-
-                e.printStackTrace();
+                // Check if the error is because connector already exists
+                if (e.getMessage() != null &&
+                        (e.getMessage().contains("already exists") ||
+                                e.getMessage().contains("409 Conflict"))) {
+                    log.info("SKIPPED (already exists): {}", connectorName);
+                } else {
+                    log.error("FAILED: {}", connectorName, e);
+                }
             }
         }
 
-       log.info("\n\n========== CONNECTOR WARMUP COMPLETED ==========\n");
+        log.info("\n\n========== CONNECTOR WARMUP COMPLETED ==========\n");
     }
 }
