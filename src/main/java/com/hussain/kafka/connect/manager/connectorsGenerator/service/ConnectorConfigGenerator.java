@@ -1,6 +1,5 @@
 package com.hussain.kafka.connect.manager.connectorsGenerator.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
@@ -11,8 +10,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Slf4j
@@ -128,19 +125,10 @@ public class ConnectorConfigGenerator {
             Path configDir = Paths.get(connectorConfigsPath);
             Files.createDirectories(configDir);
 
-            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-
-            // Save to main directory
+            // Save to main directory (overwrite if exists)
             Path mainConfigFile = configDir.resolve(baseName + "-source.json");
             Files.writeString(mainConfigFile, connectorJson);
             log.info("✅ Connector config saved to: {}", mainConfigFile);
-
-            // Create history backup
-            Path historyDir = configDir.resolve("history");
-            Files.createDirectories(historyDir);
-            Path historyFile = historyDir.resolve(baseName + "-source_" + timestamp + ".json");
-            Files.writeString(historyFile, connectorJson);
-            log.info("📚 Backup saved to: {}", historyFile);
 
         } catch (IOException e) {
             log.warn("Failed to save connector config to file: {}", e.getMessage());
