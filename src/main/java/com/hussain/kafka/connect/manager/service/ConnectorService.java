@@ -55,4 +55,12 @@ public class ConnectorService {
         List<String> connectors = getAllConnectors();
         return connectors != null && connectors.contains(name);
     }
+
+    /**
+     * Delete connector
+     */
+    public void deleteConnector(String connectorName) {
+        kafkaConnectClient.deleteConnector(connectorName);
+    }
+
 }

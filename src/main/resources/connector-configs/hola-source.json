@@ -1,0 +1,16 @@
+{
+  "name" : "hola-source",
+  "config" : {
+    "connector.class" : "com.github.jcustenborder.kafka.connect.spooldir.SpoolDirCsvSourceConnector",
+    "tasks.max" : "1",
+    "topic" : "hola-topic",
+    "input.path" : "/tmp/input",
+    "finished.path" : "/tmp/finished",
+    "error.path" : "/tmp/error",
+    "input.file.pattern" : "hola.*\\.csv",
+    "csv.first.row.as.header" : "true",
+    "schema.generation.enabled" : "false",
+    "key.schema" : "{\"name\":\"Hola\",\"type\":\"STRUCT\",\"isOptional\":true,\"fieldSchemas\":{}}",
+    "value.schema" : "{\"name\":\"Hola\",\"type\":\"STRUCT\",\"isOptional\":false,\"fieldSchemas\":{\"name\":{\"type\":\"STRING\",\"isOptional\":true},\"age\":{\"type\":\"INT32\",\"isOptional\":true},\"salary\":{\"type\":\"INT32\",\"isOptional\":true},\"subject\":{\"type\":\"STRING\",\"isOptional\":true}}}"
+  }
+}

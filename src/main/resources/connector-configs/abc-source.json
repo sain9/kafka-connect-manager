@@ -1,0 +1,16 @@
+{
+  "name" : "abc-source",
+  "config" : {
+    "connector.class" : "com.github.jcustenborder.kafka.connect.spooldir.SpoolDirCsvSourceConnector",
+    "tasks.max" : "1",
+    "topic" : "abc-topic",
+    "input.path" : "/tmp/input",
+    "finished.path" : "/tmp/finished",
+    "error.path" : "/tmp/error",
+    "input.file.pattern" : "abc.*\\.csv",
+    "csv.first.row.as.header" : "true",
+    "schema.generation.enabled" : "false",
+    "key.schema" : "{\"name\":\"Abc\",\"type\":\"STRUCT\",\"isOptional\":true,\"fieldSchemas\":{}}",
+    "value.schema" : "{\"name\":\"Abc\",\"type\":\"STRUCT\",\"isOptional\":false,\"fieldSchemas\":{\"name\":{\"type\":\"STRING\",\"isOptional\":true},\"age\":{\"type\":\"INT32\",\"isOptional\":true},\"salary\":{\"type\":\"INT32\",\"isOptional\":true},\"subject\":{\"type\":\"STRING\",\"isOptional\":true}}}"
+  }
+}

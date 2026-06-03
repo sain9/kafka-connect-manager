@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,16 @@ public class ConnectorRegistrar {
     private final KafkaConnectClient kafkaConnectClient;
     private final ObjectMapper mapper = new ObjectMapper();
 
+    public List<String> getExistingConnectors() {
+        try {
+            List<String> connectors = kafkaConnectClient.getAllConnectors();
+            return connectors != null ? connectors : Collections.emptyList();
+        } catch (Exception e) {
+            log.warn("Could not fetch existing connectors: {}", e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
     public void registerConnector(String connectorJson) throws Exception {
         @SuppressWarnings("unchecked")
         Map<String, Object> connectorMap = mapper.readValue(connectorJson, Map.class);
@@ -26,15 +37,11 @@ public class ConnectorRegistrar {
         log.info("Registering connector: {}", connectorName);
 
         // Check if already exists
-        try {
-            List<String> existingConnectors = kafkaConnectClient.getAllConnectors();
+        List<String> existingConnectors = getExistingConnectors();
 
-            if (existingConnectors != null && existingConnectors.contains(connectorName)) {
-                log.info("Connector '{}' already exists, skipping registration", connectorName);
-                return;
-            }
-        } catch (Exception e) {
-            log.warn("Could not check existing connectors: {}", e.getMessage());
+        if (existingConnectors.contains(connectorName)) {
+            log.info("Connector '{}' already exists, skipping registration", connectorName);
+            return;
         }
 
         // Convert to ConnectorRequest and register
@@ -44,8 +51,17 @@ public class ConnectorRegistrar {
             kafkaConnectClient.createConnector(request);
             log.info("✅ Connector '{}' registered successfully", connectorName);
         } catch (Exception e) {
-            log.error("Failed to register connector '{}': {}", connectorName, e.getMessage());
-            throw e;
+            if (e.getMessage() != null && e.getMessage().contains("409")) {
+                log.info("Connector '{}' already exists (conflict), skipping", connectorName);
+            } else {
+                log.error("Failed to register connector '{}': {}", connectorName, e.getMessage());
+                throw e;
+            }
         }
+    }
+
+    public boolean connectorExists(String connectorName) {
+        List<String> existingConnectors = getExistingConnectors();
+        return existingConnectors.contains(connectorName);
     }
 }
