@@ -5,6 +5,10 @@ docker compose down -v
 then run the bash script 
 ./setup-kafka-connect.sh
 
+watch docker ps
+re run ./setup-kafka-connect.sh if no kafka container seen 
+watch docker ps
+
 ## if any issue, check the mounted directories of volume
     volumes:
       - ./data/upload:/home/hussain/CodeBase/ps-sql/kafka/data/upload
