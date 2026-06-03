@@ -1,3 +1,4 @@
+Manual setup for spooldir , use setup-kafka-connect.sh instead
 # 1. Go into the Kafka Connect container
 docker exec -it kafka-connect bash
 
