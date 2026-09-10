@@ -70,11 +70,17 @@ services:
       CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
       CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components
 
+#    volumes:
+#      - ./data/upload:/home/hussain/CodeBase/ps-sql/kafka/data/upload
+#      - ./data/input:/tmp/input
+#      - ./data/error:/tmp/error
+#      - ./data/finished:/tmp/finished
+
     volumes:
-      - ./data/upload:/home/hussain/CodeBase/ps-sql/kafka/data/upload
-      - ./data/input:/tmp/input
-      - ./data/error:/tmp/error
-      - ./data/finished:/tmp/finished
+      - /home/hussain/CodeBase/ps-sql/kafka/data/upload:/home/hussain/CodeBase/ps-sql/kafka/data/upload
+      - /home/hussain/CodeBase/ps-sql/kafka/data/input:/tmp/input
+      - /home/hussain/CodeBase/ps-sql/kafka/data/error:/tmp/error
+      - /home/hussain/CodeBase/ps-sql/kafka/data/finished:/tmp/finished
 
     networks:
       - shared-network
